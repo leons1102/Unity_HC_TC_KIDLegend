@@ -76,9 +76,9 @@ public class Enemy : MonoBehaviour
     /// 受傷
     /// </summary>
     /// <param name="damage">造成的傷害</param>
-    private void Hit(float damage)
+    public void Hit(float damage)
     {
-
+        print("受傷，傷害值為：" + damage);
     }
 
     /// <summary>

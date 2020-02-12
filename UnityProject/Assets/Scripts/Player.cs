@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 
 public class Player : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class Player : MonoBehaviour
     private LevelManager levelManager;      // 關卡管理器
     private HpValueManager hpDamManager;    // 血量數值管理器
     private float timer;                    // 計時器
+    private Enemy[] enemys;                 // 啟動所有敵人陣列
+    private float[] enemysDistance;         // 儲存所有敵人距離陣列
 
     private void Start()
     {
@@ -112,6 +115,30 @@ public class Player : MonoBehaviour
         else
         {
             timer = 0;
+
+            ani.SetTrigger("攻擊觸發");             // 播放攻擊動畫
+          
+            // 1. 取得所有敵人
+            enemys = FindObjectsOfType<Enemy>();        // 搜尋所以敵人
+            enemysDistance = new float[enemys.Length];  // 指定敵人距離陣列長度
+
+            // 2. 檢查誰的距離最近
+            for (int i = 0; i < enemys.Length; i++)
+            {
+                enemysDistance[i] = Vector3.Distance(transform.position, enemys[i].transform.position);
+            }
+
+            float min = enemysDistance.Min();  // 取得最小值
+            // 一般陣列無法使用，轉為清單 List(集合)
+
+            int index = enemysDistance.ToList().IndexOf(min);
+           
+            // 3. 面相最近的敵人
+            Vector3 posEnemy = enemys[index].transform.position;
+            posEnemy.y = transform.position.y;
+            transform.LookAt(posEnemy);
+
+            //發射子彈
             // 座標 = 本身座標 + 上方 * 單位 + 前方 * 單位
             Vector3 pos = transform.position + transform.up * 1 + transform.forward * 1.5f;
             // 角度 = 四元.歐拉(本身.X，本身.Y + 單位，本身.Z + 單位)
@@ -119,6 +146,9 @@ public class Player : MonoBehaviour
             // 生成(物件，座標，角度)
             GameObject temp = Instantiate(bullet, pos, qua);
             temp.GetComponent<Rigidbody>().AddForce(transform.forward * data.power);
+            temp.AddComponent<Bullet>();                        // 添加元件<泛型>
+            temp.GetComponent<Bullet>().damage = data.attack;   // 設定子彈傷害 = 資料.攻擊力
+            temp.GetComponent<Bullet>().playerBullet = true;   // 設定子彈
         }
     }
 }
