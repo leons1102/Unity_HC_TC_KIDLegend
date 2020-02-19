@@ -103,13 +103,23 @@ public class Enemy : MonoBehaviour
         agent.isStopped = true;
         //刪除元件
         Destroy(this);
+        Destroy(gameObject, 0.5f);
+        DropTreasure();
     }
+
+    [Header("金幣")]
+    public GameObject coin;
 
     /// <summary>
     /// 掉落寶物
     /// </summary>
     private void DropTreasure()
     {
+        int r = (int)Random.Range(data.coinRandom.x, data.coinRandom.y);
 
+        for (int i = 0; i < r; i++)
+        {
+            Instantiate(coin, transform.position + transform.up * 2, Quaternion.identity);
+        }
     }
 }
